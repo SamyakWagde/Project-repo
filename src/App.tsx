@@ -28,6 +28,7 @@ import AIFloatingWidget from "./components/AIFloatingWidget";
 import { BurnoutPredictorModel } from "./components/BurnoutPredictorModel";
 import { apiFetch } from "./utils/api";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const safeStorage = {
   getItem: (key: string): string | null => {
@@ -726,6 +727,7 @@ export default function App() {
       />
 
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
