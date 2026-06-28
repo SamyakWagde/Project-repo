@@ -27,6 +27,7 @@ import AIChatBot from "./components/AIChatBot";
 import AIFloatingWidget from "./components/AIFloatingWidget";
 import { BurnoutPredictorModel } from "./components/BurnoutPredictorModel";
 import { apiFetch } from "./utils/api";
+import { Analytics } from "@vercel/analytics/react";
 
 const safeStorage = {
   getItem: (key: string): string | null => {
@@ -724,6 +725,7 @@ export default function App() {
         onNavigateToTab={(tab) => setActiveTab(tab)} 
       />
 
+      <Analytics />
     </div>
   );
 }
