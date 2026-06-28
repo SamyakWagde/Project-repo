@@ -1,4 +1,6 @@
 import express from "express";
+import cors from "cors";
+import helmet from "helmet";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
@@ -15,11 +17,40 @@ const PORT = 3000;
 // Trust reverse proxy for correct rate limiting in sandbox/Cloud Run
 app.set('trust proxy', 1);
 
-app.use(express.json());
+// Security headers — protects against XSS, clickjacking, MIME sniffing, etc.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    }
+  },
+  crossOriginEmbedderPolicy: false, // Allow Gemini API calls
+}));
 
-// JWT Constants (Safe fallbacks to prevent runtime crashes)
-const JWT_SECRET = process.env.JWT_SECRET || "burnout_guardian_super_secret_access_key_918237";
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "burnout_guardian_super_secret_refresh_key_481023";
+// CORS — only allow requests from the production frontend
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN || "https://project-repo-bice.vercel.app",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// Limit body size to prevent large payload abuse
+app.use(express.json({ limit: "10kb" }));
+
+// JWT Constants — crash on startup if secrets are missing (never use hardcoded fallbacks)
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error("FATAL: JWT_SECRET and JWT_REFRESH_SECRET must be set in environment variables. Server cannot start without them.");
+}
 
 // General API Rate Limiter: maximum of 100 requests per 15 minutes per IP
 const apiLimiter = rateLimit({
@@ -51,7 +82,7 @@ function authenticateToken(req: any, res: any, next: any) {
     return res.status(401).json({ error: "Access token is missing. Please authenticate." });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+  jwt.verify(token, JWT_SECRET!, (err: any, user: any) => {
     if (err) {
       return res.status(401).json({ error: "Access token is expired or invalid. Please refresh session." });
     }
@@ -66,8 +97,8 @@ app.post("/api/auth/token", (req, res) => {
   const user = { username: username || "Wearer" };
 
   // Generate tokens (Access Token is 5 minutes for demonstration and Refresh Token is 7 days)
-  const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: "5m" });
-  const refreshToken = jwt.sign(user, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  const accessToken = jwt.sign(user, JWT_SECRET!, { expiresIn: "5m" });
+  const refreshToken = jwt.sign(user, JWT_REFRESH_SECRET!, { expiresIn: "7d" });
 
   res.json({
     accessToken,
@@ -83,14 +114,14 @@ app.post("/api/auth/refresh", (req, res) => {
     return res.status(400).json({ error: "Refresh token is missing." });
   }
 
-  jwt.verify(refreshToken, JWT_REFRESH_SECRET, (err: any, user: any) => {
+  jwt.verify(refreshToken, JWT_REFRESH_SECRET!, (err: any, user: any) => {
     if (err) {
       return res.status(403).json({ error: "Refresh token is expired or invalid." });
     }
 
     const payload = { username: user.username };
-    const newAccessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "5m" });
-    const newRefreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+    const newAccessToken = jwt.sign(payload, JWT_SECRET!, { expiresIn: "5m" });
+    const newRefreshToken = jwt.sign(payload, JWT_REFRESH_SECRET!, { expiresIn: "7d" });
 
     res.json({
       accessToken: newAccessToken,
@@ -110,7 +141,7 @@ app.post(["/api/ml/train", "/api/train"], authenticateToken, (req, res) => {
     const metrics = globalBurnoutModel.trainModel(lr, eps);
     res.json({ success: true, metrics });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || "Failed to train machine learning model." });
+    res.status(500).json({ error: "Failed to train machine learning model." });
   }
 });
 
@@ -123,7 +154,7 @@ app.post(["/api/ml/predict", "/api/predict"], authenticateToken, (req, res) => {
     const result = globalBurnoutModel.predict(inputs);
     res.json({ success: true, result });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || "Prediction execution failed." });
+    res.status(500).json({ error: "Prediction execution failed." });
   }
 });
 
@@ -399,11 +430,26 @@ app.post("/api/analyze", authenticateToken, llmLimiter, async (req, res) => {
   try {
     const { journalText, biometrics } = req.body;
 
-    if (!journalText && journalText !== "") {
-      return res.status(400).json({ error: "Missing journalText" });
+    // Input validation
+    if (journalText === undefined || journalText === null) {
+      return res.status(400).json({ error: "Missing journalText." });
     }
-    if (!biometrics) {
-      return res.status(400).json({ error: "Missing wearable biometrics" });
+    if (typeof journalText !== "string") {
+      return res.status(400).json({ error: "journalText must be a string." });
+    }
+    if (journalText.length > 5000) {
+      return res.status(400).json({ error: "Journal text too long. Maximum 5000 characters." });
+    }
+    if (!biometrics || typeof biometrics !== "object") {
+      return res.status(400).json({ error: "Missing or invalid wearable biometrics." });
+    }
+    const { hrv, restingHR, sleepHours, sleepQuality, steps } = biometrics;
+    if (
+      typeof hrv !== "number" || typeof restingHR !== "number" ||
+      typeof sleepHours !== "number" || typeof sleepQuality !== "number" ||
+      typeof steps !== "number"
+    ) {
+      return res.status(400).json({ error: "All biometric fields (hrv, restingHR, sleepHours, sleepQuality, steps) must be numbers." });
     }
 
     let ai;
@@ -415,8 +461,6 @@ app.post("/api/analyze", authenticateToken, llmLimiter, async (req, res) => {
       const offlineResult = localBurnoutAnalyzer(journalText, biometrics);
       return res.json(offlineResult);
     }
-
-    const { hrv, restingHR, sleepHours, sleepQuality, steps } = biometrics;
 
     // Send context + prompt to Gemini with a highly descriptive response schema
     const prompt = `
@@ -492,15 +536,15 @@ app.post("/api/analyze", authenticateToken, llmLimiter, async (req, res) => {
           keyInsights: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: "2-3 highly customized, deeply healing insights fusing the biometrics and mental triggers (e.g., 'Your heart rate variability is at a weekly low, which aligns with the heavy cognitive load described in your journaling about work deadlines. Your body is matching your mind's alarm bells.')"
+            description: "2-3 highly customized, deeply healing insights fusing the biometrics and mental triggers."
           },
           physiologicalStatus: { 
             type: Type.STRING, 
-            description: "Brevity summary of physical wear (e.g., 'Significant autonomic exhaustion, parasympathetic system suppressed under low sleep')" 
+            description: "Brevity summary of physical wear." 
           },
           psychologicalStatus: { 
             type: Type.STRING, 
-            description: "Summary of cognitive resilience based on text (e.g., 'Highly self-critical, experiencing classic imposter syndrome and workload burnout')" 
+            description: "Summary of cognitive resilience based on text." 
           },
           recommendations: {
             type: Type.ARRAY,
@@ -530,8 +574,8 @@ app.post("/api/analyze", authenticateToken, llmLimiter, async (req, res) => {
     };
 
     let response;
-    // Sequential fallback ladder through a loop of supported models to protect against demand peaks (503s)
-    const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
+    // Sequential fallback — only real models
+    const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
     let success = false;
     let apiErrorMsg = "";
 
@@ -543,7 +587,7 @@ app.post("/api/analyze", authenticateToken, llmLimiter, async (req, res) => {
           config: generateConfig
         });
         success = true;
-        break; // Successfully got response, break early
+        break;
       } catch (err: any) {
         const errMessage = typeof err === 'object' && err !== null ? (err.message || JSON.stringify(err)) : String(err);
         const isUnavailable = errMessage.includes("503") || errMessage.toLowerCase().includes("unavailable") || errMessage.toLowerCase().includes("high demand");
@@ -564,10 +608,7 @@ app.post("/api/analyze", authenticateToken, llmLimiter, async (req, res) => {
 
   } catch (error: any) {
     console.error("Analysis API failed:", error);
-    return res.status(500).json({ 
-      error: "Analysis Failed", 
-      details: error.message || "An unexpected error occurred during analysis" 
-    });
+    return res.status(500).json({ error: "Analysis Failed. An unexpected error occurred." });
   }
 });
 
@@ -589,7 +630,6 @@ app.post("/api/chat", authenticateToken, llmLimiter, async (req, res) => {
       return res.json({ text: offlineReply });
     }
 
-    // Prepare content elements, including latest biometric summaries to make the chatbot context-aware
     const contents: any[] = [];
 
     let contextSummary = "No logging history available yet. Encourage the user to enter their initial journal and biometrics tracker.";
@@ -600,7 +640,7 @@ app.post("/api/chat", authenticateToken, llmLimiter, async (req, res) => {
         contextSummary = `
           The user is currently showing a Burnout Risk Score of ${analysis.burnoutRiskScore}/100, categorized as '${analysis.predictorClass}'.
           Physiological autonomic stress is marked at ${analysis.stressFactorIndex}/100.
-          Their wearbales tracked: HRV of ${bio.hrv}ms (lower = highly strained), Resting HR of ${bio.restingHR}bpm (higher = stressed), Sleep is ${bio.sleepHours} hours (${bio.sleepQuality}% quality).
+          Their wearables tracked: HRV of ${bio.hrv}ms (lower = highly strained), Resting HR of ${bio.restingHR}bpm (higher = stressed), Sleep is ${bio.sleepHours} hours (${bio.sleepQuality}% quality).
           Psychological journal sentiment is '${analysis.sentimentAnalysis?.label ?? "neutral"}' with primary emotion of '${analysis.sentimentAnalysis?.primaryEmotion ?? "fatigue"}'.
           Key insights they received: "${(analysis.keyInsights || []).join('; ')}".
         `;
@@ -612,7 +652,6 @@ app.post("/api/chat", authenticateToken, llmLimiter, async (req, res) => {
       }
     }
 
-    // Set up a structured contextual prompt
     const systemPrompt = `
       You are an expert, deeply warm, and professional cognitive-behavioral therapy (CBT) assistant, somatic coach, and occupational health specialist.
       Your goal is to help users manage, mitigate, and physically/psychologically heal from occupational or general life burnout.
@@ -630,15 +669,14 @@ app.post("/api/chat", authenticateToken, llmLimiter, async (req, res) => {
       - If they exhibit signs of critical clinical distress, gently and firmly guide them to professional medical counseling support.
     `;
 
-    // Map systemPrompt as client instruction or systemInstruction
-    // Gather system and mapping history
     const mappedContents = messages.map((m: any) => ({
       role: m.sender === "user" ? "user" : "model",
       parts: [{ text: m.text }]
     }));
 
     let response;
-    const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
+    // Sequential fallback — only real models
+    const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
     let success = false;
     let apiErrorMsg = "";
 
@@ -653,7 +691,7 @@ app.post("/api/chat", authenticateToken, llmLimiter, async (req, res) => {
           }
         });
         success = true;
-        break; // Successfully got response, break early
+        break;
       } catch (err: any) {
         const errMessage = typeof err === 'object' && err !== null ? (err.message || JSON.stringify(err)) : String(err);
         const isUnavailable = errMessage.includes("503") || errMessage.toLowerCase().includes("unavailable") || errMessage.toLowerCase().includes("high demand");
@@ -673,10 +711,7 @@ app.post("/api/chat", authenticateToken, llmLimiter, async (req, res) => {
 
   } catch (error: any) {
     console.error("Chat API failed:", error);
-    return res.status(500).json({ 
-      error: "Chat Assistant Failed",
-      details: error.message || "An unexpected error occurred in the assistant" 
-    });
+    return res.status(500).json({ error: "Chat Assistant Failed. An unexpected error occurred." });
   }
 });
 
@@ -686,20 +721,13 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
     const historicalLogs: any[] = [];
     const today = new Date();
 
-    // Narratives for the 14 days representing a high stress workload peak that slowly recovers
     const templates = [
       {
         offset: 13,
         journalText: "Another brutal day at work. The client keeps demanding late additions, and feels like there is zero breathing room. Completely depleted.",
         sentiment: { score: -0.85, label: "negative", primaryEmotion: "exhaustion", keywords: ["demanding", "no space", "depleted"] },
-        hrv: 24, // highly strained
-        restingHR: 84, // elevated
-        sleepHours: 4.8, // severe deficit
-        sleepQuality: 45,
-        steps: 3200,
-        burnoutRiskScore: 88,
-        stressFactorIndex: 82,
-        predictorClass: "High Burnout Warning",
+        hrv: 24, restingHR: 84, sleepHours: 4.8, sleepQuality: 45, steps: 3200,
+        burnoutRiskScore: 88, stressFactorIndex: 82, predictorClass: "High Burnout Warning",
         keyInsights: [
           "Severe autonomic depletion logged. Your low HRV and resting HR peak reflect acute physiological flight-or-fight response.",
           "Feelings of complete helplessness around client deadlines match emotional exhaustion clinical indicators."
@@ -715,14 +743,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 12,
         journalText: "I couldn't sleep at all. My heart was pounding thinking about the project dashboard launch. Let's see if I can push through with coffee.",
         sentiment: { score: -0.9, label: "negative", primaryEmotion: "overwhelm", keywords: ["sleepless", "pounding", "push through"] },
-        hrv: 21,
-        restingHR: 86,
-        sleepHours: 4.2,
-        sleepQuality: 38,
-        steps: 2800,
-        burnoutRiskScore: 92,
-        stressFactorIndex: 88,
-        predictorClass: "High Burnout Warning",
+        hrv: 21, restingHR: 86, sleepHours: 4.2, sleepQuality: 38, steps: 2800,
+        burnoutRiskScore: 92, stressFactorIndex: 88, predictorClass: "High Burnout Warning",
         keyInsights: [
           "Autonomic crash point detected. Sleep efficiency has drops below recovery baselines.",
           "High coffee intake masks psychological warnings but exacerbates physical nervous strain."
@@ -738,14 +760,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 11,
         journalText: "Dashboard launch was delayed because of a server bug. I feel like we failed and worked all those late nights for nothing. What is the point?",
         sentiment: { score: -0.82, label: "negative", primaryEmotion: "cynicism", keywords: ["delayed", "failed", "no point"] },
-        hrv: 26,
-        restingHR: 81,
-        sleepHours: 5.5,
-        sleepQuality: 52,
-        steps: 4100,
-        burnoutRiskScore: 89,
-        stressFactorIndex: 78,
-        predictorClass: "High Burnout Warning",
+        hrv: 26, restingHR: 81, sleepHours: 5.5, sleepQuality: 52, steps: 4100,
+        burnoutRiskScore: 89, stressFactorIndex: 78, predictorClass: "High Burnout Warning",
         keyInsights: [
           "MBI Depersonalization subscale elevation. Feeling 'for nothing' or questioning the wider value indicates cynicism defenses activating.",
           "Subtle respiratory recovery starting, though still in a heavy fatigue state."
@@ -761,20 +777,14 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 10,
         journalText: "Finally took a half-day off. Just slept in the afternoon. Still have a mild headache, but didn't open my email once. Felt incredibly guilty though.",
         sentiment: { score: -0.2, label: "negative", primaryEmotion: "guilt", keywords: ["half-day", "headache", "guilt", "sleeping"] },
-        hrv: 35, // starting to crawl up
-        restingHR: 76,
-        sleepHours: 9.0, // long makeup sleep
-        sleepQuality: 70,
-        steps: 3500,
-        burnoutRiskScore: 78,
-        stressFactorIndex: 65,
-        predictorClass: "High Burnout Warning",
+        hrv: 35, restingHR: 76, sleepHours: 9.0, sleepQuality: 70, steps: 3500,
+        burnoutRiskScore: 78, stressFactorIndex: 65, predictorClass: "High Burnout Warning",
         keyInsights: [
           "Substantial sleep extension logged. Sleep hours act as physiological buffer, easing cardiovascular strain.",
           "Heavy psychological guilt accompanies rest period—reflecting a dysfunctional belief that health is conditional on labor."
         ],
         physiologicalStatus: "Sleep rebound initiating recovery; resting heart rate stabilized.",
-        psychologicalStatus: "Exhaustion easing, though cognitive cognitive dissonance and guilt remain elevated.",
+        psychologicalStatus: "Exhaustion easing, though cognitive dissonance and guilt remain elevated.",
         recommendations: [
           { action: "Reframe rest as maintenance rather than a luxury—it is biologically mandatory.", type: "mindfulness", urgency: "high" },
           { action: "Take a walking break in natural sunlight without your phone.", type: "recovery", urgency: "medium" }
@@ -784,14 +794,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 9,
         journalText: "The team was supportive when I returned. Had a couple of quick meetings, but didn't stress as much. Did a short workout in the evening.",
         sentiment: { score: 0.3, label: "positive", primaryEmotion: "relief", keywords: ["supportive", "fewer meetings", "workout"] },
-        hrv: 42,
-        restingHR: 72,
-        sleepHours: 7.2,
-        sleepQuality: 75,
-        steps: 8500,
-        burnoutRiskScore: 68,
-        stressFactorIndex: 50,
-        predictorClass: "Moderate Burnout Risk",
+        hrv: 42, restingHR: 72, sleepHours: 7.2, sleepQuality: 75, steps: 8500,
+        burnoutRiskScore: 68, stressFactorIndex: 50, predictorClass: "Moderate Burnout Risk",
         keyInsights: [
           "Positive shift in psychological sentiment score from negative back into mild optimism balances risk indexes.",
           "Physical steps increase indicates return of active energy reserves."
@@ -807,14 +811,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 8,
         journalText: "Felt okay today. Just normal tasks. Still a bit fatigued by midday, but managed to sign off by 5:30. Cooked some healthy dinner.",
         sentiment: { score: 0.4, label: "positive", primaryEmotion: "neutrality", keywords: ["okay", "normal", "healthy dinner", "signed off"] },
-        hrv: 48,
-        restingHR: 68,
-        sleepHours: 7.5,
-        sleepQuality: 78,
-        steps: 6200,
-        burnoutRiskScore: 58,
-        stressFactorIndex: 44,
-        predictorClass: "Moderate Burnout Risk",
+        hrv: 48, restingHR: 68, sleepHours: 7.5, sleepQuality: 78, steps: 6200,
+        burnoutRiskScore: 58, stressFactorIndex: 44, predictorClass: "Moderate Burnout Risk",
         keyInsights: [
           "The early signoff at 5:30 protected evening cortisol drop, enabling a nice resting heart rate baseline of 68 bpm.",
           "Self-care in cooking signals return of operational agency and control."
@@ -829,14 +827,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 7,
         journalText: "Had a nice conversation with a coworker about life outside of work. Made me realize work is just work, not my complete identity.",
         sentiment: { score: 0.65, label: "positive", primaryEmotion: "perspective", keywords: ["nice conversation", "coworker", "identity"] },
-        hrv: 55,
-        restingHR: 65,
-        sleepHours: 7.8,
-        sleepQuality: 82,
-        steps: 7100,
-        burnoutRiskScore: 46,
-        stressFactorIndex: 35,
-        predictorClass: "Mild Fatigue",
+        hrv: 55, restingHR: 65, sleepHours: 7.8, sleepQuality: 82, steps: 7100,
+        burnoutRiskScore: 46, stressFactorIndex: 35, predictorClass: "Mild Fatigue",
         keyInsights: [
           "Identity diversification logged. Psychological detaching-and-revaluating reduces depersonalization index dramatically.",
           "Sleep metrics approach solid parameters of 82% efficiency, improving nerve restoration."
@@ -852,14 +844,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 6,
         journalText: "A bit of backlog stress today, but handled it step-by-step. Took deep belly breaths when I felt an anxious spike in my chest. It really worked.",
         sentiment: { score: 0.2, label: "positive", primaryEmotion: "resilience", keywords: ["backlog", "deep breaths", "belly breathing"] },
-        hrv: 52,
-        restingHR: 66,
-        sleepHours: 7.0,
-        sleepQuality: 76,
-        steps: 5800,
-        burnoutRiskScore: 48,
-        stressFactorIndex: 38,
-        predictorClass: "Mild Fatigue",
+        hrv: 52, restingHR: 66, sleepHours: 7.0, sleepQuality: 76, steps: 5800,
+        burnoutRiskScore: 48, stressFactorIndex: 38, predictorClass: "Mild Fatigue",
         keyInsights: [
           "Adaptive coping in action. Using somatic checks (conscious breathing) interrupts stress neural pathways.",
           "Biometrics hold steady despite rising workflow backlog volume."
@@ -874,14 +860,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 5,
         journalText: "Weekend starting. Spent the afternoon reading at a coffee shop and did a lengthy stretch. My body feels so much lighter.",
         sentiment: { score: 0.75, label: "positive", primaryEmotion: "peace", keywords: ["weekend", "coffee shop", "stretch", "lighter"] },
-        hrv: 63,
-        restingHR: 61,
-        sleepHours: 8.2,
-        sleepQuality: 85,
-        steps: 6400,
-        burnoutRiskScore: 34,
-        stressFactorIndex: 25,
-        predictorClass: "Mild Fatigue",
+        hrv: 63, restingHR: 61, sleepHours: 8.2, sleepQuality: 85, steps: 6400,
+        burnoutRiskScore: 34, stressFactorIndex: 25, predictorClass: "Mild Fatigue",
         keyInsights: [
           "Somatic muscle relief observed. Feeling 'lighter' correlates directly with a lower resting heart rate of 61 bpm.",
           "A full recovery block has returned user values back to sustainable baselines."
@@ -896,14 +876,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 4,
         journalText: "Slept incredibly well. Met friends for lunch and laughed a lot. I hadn't realized how isolated I was during the stress peak.",
         sentiment: { score: 0.85, label: "positive", primaryEmotion: "social connection", keywords: ["slept well", "friends", "laughed", "isolated"] },
-        hrv: 72, // excellent index
-        restingHR: 58, // healthy low resting HR
-        sleepHours: 8.5,
-        sleepQuality: 89,
-        steps: 9200,
-        burnoutRiskScore: 24,
-        stressFactorIndex: 15,
-        predictorClass: "Low Risk",
+        hrv: 72, restingHR: 58, sleepHours: 8.5, sleepQuality: 89, steps: 9200,
+        burnoutRiskScore: 24, stressFactorIndex: 15, predictorClass: "Low Risk",
         keyInsights: [
           "Social soothing mechanism activated. Oxytocin release from social laugh blocks acts as heart rate regulator.",
           "Biometrics indicate complete recovery. The nervous system has entered a robust parasympathetic growth state."
@@ -918,14 +892,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 3,
         journalText: "Sunday was calm. Prepped some meals for the week, and organized my desk. Ready for the week but not feeling anxious this time.",
         sentiment: { score: 0.7, label: "positive", primaryEmotion: "calm readiness", keywords: ["calm", "desk prep", "not anxious"] },
-        hrv: 68,
-        restingHR: 60,
-        sleepHours: 7.9,
-        sleepQuality: 84,
-        steps: 5100,
-        burnoutRiskScore: 23,
-        stressFactorIndex: 18,
-        predictorClass: "Low Risk",
+        hrv: 68, restingHR: 60, sleepHours: 7.9, sleepQuality: 84, steps: 5100,
+        burnoutRiskScore: 23, stressFactorIndex: 18, predictorClass: "Low Risk",
         keyInsights: [
           "Mental organization without anticipation anxiety prevents standard Sunday night sympathetic spike.",
           "HRV stabilizes near 68 ms, ideal autonomic readiness."
@@ -940,14 +908,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 2,
         journalText: "Monday workspace was busy, but I paced myself. Declined an optional meeting that could have been an email and felt proud of myself.",
         sentiment: { score: 0.6, label: "positive", primaryEmotion: "agency", keywords: ["paced myself", "declined meeting", "proud"] },
-        hrv: 64,
-        restingHR: 62,
-        sleepHours: 7.2,
-        sleepQuality: 80,
-        steps: 6800,
-        burnoutRiskScore: 26,
-        stressFactorIndex: 22,
-        predictorClass: "Low Risk",
+        hrv: 64, restingHR: 62, sleepHours: 7.2, sleepQuality: 80, steps: 6800,
+        burnoutRiskScore: 26, stressFactorIndex: 22, predictorClass: "Low Risk",
         keyInsights: [
           "Boundary-setting efficacy demonstrated. Exercising the right to say no directly reduces occupational overload risks.",
           "HRV stays comfortably high matching the paced behavioral design."
@@ -962,14 +924,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 1,
         journalText: "Felt productive today. Actually finished a complex task that had been sitting on my plate forever. Efficacy is back up, feeling useful.",
         sentiment: { score: 0.8, label: "positive", primaryEmotion: "efficacy", keywords: ["productive", "finished task", "useful"] },
-        hrv: 66,
-        restingHR: 63,
-        sleepHours: 7.4,
-        sleepQuality: 82,
-        steps: 7500,
-        burnoutRiskScore: 22,
-        stressFactorIndex: 20,
-        predictorClass: "Low Risk",
+        hrv: 66, restingHR: 63, sleepHours: 7.4, sleepQuality: 82, steps: 7500,
+        burnoutRiskScore: 22, stressFactorIndex: 20, predictorClass: "Low Risk",
         keyInsights: [
           "Maslach Personal Accomplishment surge! Efficacy directly matches task resolution, lowering burnout scoring.",
           "Constant physical baseline maintained with consistent circadian rhythms."
@@ -984,14 +940,8 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
         offset: 0,
         journalText: "A very balanced day. Signed off early to play a video game, then walked around the block. Sticking to my healthy boundaries.",
         sentiment: { score: 0.82, label: "positive", primaryEmotion: "vibrant balance", keywords: ["balanced", "signed off early", "boundaries"] },
-        hrv: 69,
-        restingHR: 61,
-        sleepHours: 7.6,
-        sleepQuality: 85,
-        steps: 8200,
-        burnoutRiskScore: 18,
-        stressFactorIndex: 16,
-        predictorClass: "Low Risk",
+        hrv: 69, restingHR: 61, sleepHours: 7.6, sleepQuality: 85, steps: 8200,
+        burnoutRiskScore: 18, stressFactorIndex: 16, predictorClass: "Low Risk",
         keyInsights: [
           "Vibrant balance achieved. Regular non-work evening play breaks cognitive tracking and resets nervous levels.",
           "Autonomic system is resting on stable and excellent cardiovascular reserve levels."
@@ -1045,7 +995,7 @@ app.post("/api/generate_mock_data", authenticateToken, (req, res) => {
 
   } catch (err: any) {
     console.error("Failed to generate mock:", err);
-    return res.status(500).json({ error: "Generation failed", details: err.message });
+    return res.status(500).json({ error: "Generation failed." });
   }
 });
 
