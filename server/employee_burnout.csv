@@ -1,0 +1,101 @@
+EmployeeID,Age,Gender,Country,JobRole,Department,YearsAtCompany,WorkHoursPerWeek,RemoteWork,BurnoutLevel,JobSatisfaction,StressLevel,ProductivityScore,SleepHours,PhysicalActivityHrs,CommuteTime,HasMentalHealthSupport,ManagerSupportScore,HasTherapyAccess,MentalHealthDaysOff,SalaryRange,WorkLifeBalanceScore,TeamSize,CareerGrowthScore,BurnoutRisk
+1001,50,Male,UK,Sales Associate,HR,14,47,No,3.37,5.06,9.47,4.16,7.0,7.9,117,No,3.15,Yes,8,40K-60K,8.82,6,9.2,0
+1002,36,Male,Germany,Software Engineer,IT,1,59,Hybrid,7.39,2.0,5.65,3.74,7.2,9.0,8,Yes,4.4,Yes,4,80K-100K,2.8,45,8.46,1
+1003,29,Non-binary,India,IT Admin,IT,13,59,Hybrid,7.1,7.17,5.7,8.8,5.2,9.7,75,No,3.63,No,6,80K-100K,7.28,7,7.96,1
+1004,42,Male,Australia,HR Specialist,IT,15,31,Yes,4.18,3.76,6.4,4.69,8.7,5.8,43,Yes,4.5,Yes,9,60K-80K,1.31,11,8.9,0
+1005,40,Male,Brazil,Customer Support,Support,6,34,Yes,8.28,2.34,3.41,2.12,4.2,3.3,58,Yes,5.51,Yes,6,<40K,1.17,18,8.88,1
+1006,44,Prefer not to say,Germany,Project Manager,Support,3,58,Hybrid,3.12,4.81,4.45,1.09,8.5,3.2,23,Yes,2.56,No,6,40K-60K,5.06,38,4.32,0
+1007,32,Prefer not to say,USA,Software Engineer,Engineering,17,30,Hybrid,5.15,9.68,5.98,7.5,5.9,3.8,62,No,4.54,Yes,9,100K+,6.91,12,9.76,0
+1008,32,Male,Canada,Customer Support,Marketing,4,39,No,5.25,4.7,9.48,7.43,7.6,6.1,77,Yes,4.47,No,3,80K-100K,2.28,22,7.38,0
+1009,45,Prefer not to say,Canada,Marketing Manager,Sales,5,49,Hybrid,4.07,4.13,6.78,4.76,7.3,4.9,112,No,3.57,No,3,80K-100K,7.87,3,4.33,0
+1010,57,Prefer not to say,Brazil,Software Engineer,Engineering,6,59,Hybrid,9.59,5.0,4.0,2.14,4.8,6.5,40,Yes,9.99,No,2,60K-80K,2.16,19,4.98,1
+1011,45,Male,Germany,Sales Associate,Sales,14,39,Yes,7.27,1.11,1.09,4.34,5.6,0.4,75,No,1.66,No,3,80K-100K,5.8,43,7.18,1
+1012,24,Non-binary,Brazil,Data Scientist,Marketing,0,34,Hybrid,5.85,2.2,9.83,6.31,6.6,1.1,90,Yes,6.79,Yes,8,80K-100K,3.77,23,4.25,0
+1013,43,Male,Canada,HR Specialist,Support,3,47,Hybrid,5.59,8.65,5.44,7.34,8.2,9.8,73,No,2.57,No,4,80K-100K,7.77,34,8.44,0
+1014,23,Prefer not to say,India,IT Admin,Sales,0,50,Yes,2.43,9.8,9.45,1.7,8.8,10.0,106,No,8.56,Yes,5,60K-80K,8.24,3,2.33,0
+1015,45,Non-binary,Germany,Marketing Manager,IT,10,55,No,4.35,2.42,5.94,6.01,4.1,7.5,1,No,9.23,Yes,3,<40K,1.59,23,9.17,0
+1016,51,Female,UK,Marketing Manager,HR,17,44,Yes,7.05,5.82,6.45,3.49,5.8,2.6,94,No,4.61,Yes,0,80K-100K,2.73,49,3.71,1
+1017,59,Non-binary,India,Project Manager,Support,13,49,Yes,9.32,9.7,7.41,6.56,7.3,9.5,27,No,8.41,No,6,40K-60K,9.03,5,2.37,1
+1018,23,Prefer not to say,India,Software Engineer,IT,10,37,Hybrid,8.35,2.41,3.89,6.83,6.6,2.1,15,No,3.25,No,6,80K-100K,4.74,29,8.72,1
+1019,42,Non-binary,India,Project Manager,IT,9,46,Hybrid,3.7,2.68,7.29,9.2,8.7,7.3,58,No,2.26,No,5,80K-100K,5.29,34,3.16,0
+1020,54,Male,UK,Data Scientist,Marketing,16,41,No,4.91,9.34,5.74,4.69,4.1,1.2,0,No,3.84,No,3,40K-60K,2.51,44,8.59,0
+1021,33,Female,USA,Customer Support,Support,3,50,Hybrid,1.75,7.35,7.05,5.84,6.2,6.5,85,No,4.08,No,9,60K-80K,9.95,5,3.67,0
+1022,43,Female,Australia,Data Scientist,HR,14,59,No,1.92,2.37,8.52,3.41,7.3,7.6,0,Yes,4.58,No,7,100K+,9.31,29,9.4,0
+1023,46,Female,Brazil,Customer Support,Engineering,15,59,No,5.23,4.54,2.66,3.58,5.1,8.6,30,Yes,4.36,No,7,40K-60K,1.02,45,2.97,0
+1024,48,Prefer not to say,Canada,Project Manager,IT,20,56,No,5.77,1.51,6.52,1.41,7.6,7.3,21,Yes,4.7,Yes,0,100K+,5.96,24,1.63,0
+1025,49,Prefer not to say,Brazil,HR Specialist,IT,12,41,No,3.38,4.89,1.47,3.57,4.4,9.2,97,Yes,7.39,Yes,8,<40K,8.85,39,9.43,0
+1026,37,Female,Germany,Data Scientist,Sales,8,55,Hybrid,6.79,8.0,1.92,1.57,6.3,5.2,75,Yes,3.21,No,7,<40K,4.87,21,2.49,0
+1027,36,Non-binary,USA,Project Manager,Marketing,10,30,Yes,7.33,5.99,7.07,9.68,7.4,6.8,58,No,1.17,No,1,80K-100K,4.93,32,9.5,1
+1028,24,Female,Germany,Software Engineer,Engineering,10,55,Yes,3.69,6.83,1.64,6.62,5.3,3.7,118,Yes,5.41,Yes,8,80K-100K,4.41,43,8.42,0
+1029,58,Non-binary,Brazil,Project Manager,Engineering,5,55,Hybrid,7.83,3.94,6.36,2.56,4.4,0.1,86,Yes,5.03,No,3,60K-80K,1.26,5,1.74,1
+1030,28,Non-binary,Canada,Project Manager,Sales,0,33,Hybrid,2.85,2.45,2.98,2.05,8.8,7.6,27,Yes,1.54,Yes,9,100K+,8.11,18,5.01,0
+1031,42,Prefer not to say,UK,Sales Associate,Sales,5,37,No,5.9,1.12,3.74,4.33,8.6,8.7,115,Yes,2.2,Yes,5,<40K,5.11,38,1.66,0
+1032,30,Non-binary,Brazil,Data Scientist,Sales,12,30,Hybrid,8.24,8.39,2.17,3.77,8.6,1.7,113,No,5.59,No,1,<40K,5.78,35,3.97,1
+1033,39,Female,India,IT Admin,Support,4,56,Yes,5.83,6.73,3.24,3.51,8.9,0.3,75,No,3.11,No,9,80K-100K,3.3,38,4.16,0
+1034,25,Prefer not to say,Brazil,HR Specialist,IT,14,44,Hybrid,9.17,3.06,8.39,5.21,4.9,1.6,26,Yes,8.9,Yes,3,80K-100K,8.06,16,6.4,1
+1035,46,Male,India,HR Specialist,IT,17,47,Hybrid,1.53,4.77,6.75,9.22,4.8,9.0,86,Yes,2.56,Yes,1,60K-80K,8.14,35,9.78,0
+1036,35,Male,UK,Sales Associate,Engineering,19,30,No,6.29,8.21,9.55,6.11,4.2,3.0,0,Yes,1.18,No,8,80K-100K,5.98,24,2.53,0
+1037,30,Prefer not to say,Brazil,Customer Support,Support,13,40,No,6.06,5.85,1.44,5.69,8.5,2.3,106,Yes,5.03,Yes,8,80K-100K,9.14,36,3.96,0
+1038,47,Female,USA,Marketing Manager,Support,14,52,No,6.94,3.7,8.13,8.26,7.8,0.1,1,No,9.88,No,4,60K-80K,2.04,5,6.28,0
+1039,23,Male,USA,Customer Support,Support,4,31,No,8.5,3.4,7.29,1.04,7.2,3.0,107,No,6.7,No,2,80K-100K,8.08,9,2.54,1
+1040,41,Male,Germany,HR Specialist,Support,3,30,Yes,7.53,2.96,3.35,2.78,8.6,7.2,94,No,4.19,No,2,80K-100K,6.03,4,7.4,1
+1041,49,Non-binary,UK,Project Manager,Engineering,1,41,Hybrid,8.11,8.41,7.56,5.47,6.9,9.6,65,Yes,1.15,No,0,80K-100K,3.08,33,4.63,1
+1042,28,Non-binary,USA,Sales Associate,HR,6,45,Hybrid,3.6,6.24,7.45,7.35,4.6,3.1,48,No,5.36,Yes,7,100K+,2.19,27,9.55,0
+1043,29,Female,Brazil,Software Engineer,Sales,9,51,No,4.49,7.38,5.13,5.37,4.9,2.4,88,Yes,2.86,No,2,<40K,3.71,22,6.67,0
+1044,56,Prefer not to say,UK,Data Scientist,Sales,15,51,Yes,6.64,8.74,7.2,2.47,4.7,8.9,101,No,6.83,No,3,40K-60K,8.71,11,4.27,0
+1045,35,Female,Canada,Data Scientist,Sales,9,39,Yes,5.98,9.88,5.0,9.37,5.5,8.5,111,No,6.25,Yes,1,<40K,8.09,5,7.48,0
+1046,38,Prefer not to say,India,IT Admin,IT,17,47,Hybrid,9.65,3.25,4.02,3.96,5.9,3.3,18,Yes,3.39,Yes,7,100K+,6.81,10,8.55,1
+1047,57,Male,Brazil,Data Scientist,Marketing,16,44,No,2.68,2.63,5.2,8.09,8.0,0.7,27,No,1.62,Yes,2,40K-60K,1.81,3,8.2,0
+1048,25,Non-binary,India,Project Manager,Sales,20,46,Hybrid,4.16,5.16,9.06,9.02,5.0,9.9,69,No,7.8,No,1,<40K,9.59,15,3.36,0
+1049,23,Female,India,Software Engineer,Engineering,12,59,Hybrid,6.15,1.32,4.46,4.12,7.6,6.8,38,Yes,6.27,Yes,0,60K-80K,3.75,46,4.75,0
+1050,27,Female,UK,Sales Associate,Engineering,0,39,Yes,8.81,8.13,4.63,8.61,6.5,9.3,18,No,8.58,Yes,9,100K+,6.46,37,5.07,1
+1051,25,Prefer not to say,UK,Sales Associate,HR,0,32,Yes,9.36,8.95,6.48,7.4,9.0,3.4,115,No,3.34,No,1,60K-80K,8.23,40,4.5,1
+1052,50,Prefer not to say,Germany,Data Scientist,Engineering,14,55,Hybrid,4.02,7.17,7.78,9.14,7.9,6.5,63,Yes,6.88,Yes,1,60K-80K,2.2,17,3.8,0
+1053,39,Female,India,Software Engineer,Support,0,59,No,1.6,3.41,7.61,3.26,8.8,6.7,57,No,2.07,Yes,3,<40K,6.87,20,7.77,0
+1054,47,Prefer not to say,Germany,Software Engineer,HR,5,50,No,4.79,2.11,1.18,9.38,5.7,8.7,16,Yes,3.63,Yes,0,40K-60K,1.29,4,1.11,0
+1055,55,Female,India,Software Engineer,HR,12,45,Hybrid,4.55,4.44,7.19,1.59,4.6,9.9,69,Yes,6.91,Yes,0,80K-100K,1.92,34,3.64,0
+1056,31,Female,Germany,HR Specialist,Sales,0,35,Hybrid,9.88,8.5,5.05,8.14,6.5,1.1,78,Yes,8.43,No,5,80K-100K,7.51,34,2.27,1
+1057,57,Female,Germany,HR Specialist,Marketing,4,32,No,4.88,4.13,5.72,4.92,4.6,6.3,85,Yes,3.89,No,4,100K+,2.4,31,2.16,0
+1058,35,Male,Canada,Data Scientist,HR,8,38,No,3.75,1.31,6.05,2.6,6.5,3.4,40,Yes,8.19,No,0,60K-80K,4.99,34,3.49,0
+1059,52,Prefer not to say,Germany,Software Engineer,IT,16,40,No,4.29,3.47,7.59,1.71,5.3,8.1,97,Yes,7.1,Yes,5,100K+,3.23,3,7.86,0
+1060,36,Non-binary,UK,Marketing Manager,HR,15,50,Hybrid,4.57,9.91,8.48,4.51,6.5,7.5,4,Yes,4.14,Yes,7,<40K,4.79,28,9.72,0
+1061,29,Non-binary,Germany,Software Engineer,Sales,7,42,Yes,8.39,7.09,6.82,4.5,8.7,8.9,116,Yes,8.89,Yes,4,60K-80K,1.69,41,5.63,1
+1062,35,Prefer not to say,India,Sales Associate,Support,16,47,No,1.73,9.11,6.08,3.07,5.4,3.4,22,Yes,5.58,No,2,80K-100K,7.79,37,4.05,0
+1063,44,Female,Germany,Sales Associate,Sales,14,55,No,3.85,7.97,4.36,2.94,9.0,1.8,68,Yes,6.83,Yes,2,<40K,1.71,29,8.46,0
+1064,42,Non-binary,USA,Data Scientist,Engineering,0,51,No,9.7,5.86,2.24,4.6,5.1,0.2,107,Yes,5.46,No,1,<40K,8.54,15,1.6,1
+1065,37,Non-binary,Australia,Marketing Manager,HR,11,57,Hybrid,2.38,2.34,9.63,4.69,5.0,2.6,9,Yes,5.07,No,8,100K+,6.96,36,1.84,0
+1066,39,Prefer not to say,India,Software Engineer,IT,4,53,Yes,7.68,4.14,5.16,4.98,6.7,3.7,67,Yes,8.63,Yes,8,100K+,4.75,35,4.11,1
+1067,45,Non-binary,USA,Customer Support,Sales,5,56,Yes,4.21,6.25,6.1,8.82,8.2,9.5,11,No,3.65,Yes,6,40K-60K,8.8,41,5.04,0
+1068,47,Female,India,Marketing Manager,IT,0,51,No,6.24,8.84,7.76,6.5,7.7,4.9,110,Yes,1.33,Yes,0,80K-100K,2.68,10,8.18,0
+1069,46,Prefer not to say,UK,IT Admin,Support,0,33,Hybrid,1.9,3.42,1.62,1.18,7.6,5.6,9,Yes,8.92,No,0,80K-100K,3.38,17,9.33,0
+1070,50,Female,Australia,Data Scientist,Sales,9,51,Yes,3.76,2.09,8.7,5.67,5.4,8.8,59,Yes,8.43,Yes,3,100K+,2.23,30,5.78,0
+1071,36,Non-binary,Australia,Sales Associate,IT,9,53,Hybrid,5.51,6.03,8.17,7.86,4.1,8.9,29,No,4.3,Yes,1,80K-100K,4.43,8,5.46,0
+1072,22,Non-binary,UK,Customer Support,IT,2,37,Yes,3.09,2.59,7.97,1.51,4.8,5.3,113,Yes,2.67,Yes,2,80K-100K,9.88,23,2.92,0
+1073,46,Female,Australia,Sales Associate,HR,16,42,No,5.88,6.49,1.2,4.8,5.7,1.1,23,No,7.08,Yes,1,<40K,2.45,19,5.06,0
+1074,28,Male,UK,HR Specialist,IT,18,39,Hybrid,2.98,3.37,5.74,5.06,8.9,2.7,68,Yes,1.71,Yes,0,60K-80K,8.48,37,9.31,0
+1075,30,Non-binary,USA,Data Scientist,HR,10,31,No,6.85,3.08,1.49,9.59,8.6,4.6,12,No,4.81,No,2,60K-80K,6.87,43,4.54,0
+1076,45,Male,Canada,Data Scientist,Marketing,17,37,Yes,9.14,4.59,5.96,5.28,5.0,7.5,99,No,1.77,Yes,6,40K-60K,1.14,36,2.9,1
+1077,22,Non-binary,India,Software Engineer,Sales,1,35,Yes,1.77,6.34,7.47,7.75,7.6,7.1,8,No,6.38,No,9,60K-80K,9.5,4,4.04,0
+1078,29,Male,UK,Software Engineer,Sales,8,45,No,2.95,5.91,2.1,3.73,6.9,6.4,17,No,1.24,No,8,80K-100K,9.74,26,5.63,0
+1079,45,Male,India,HR Specialist,Marketing,16,47,Yes,8.6,3.2,7.25,8.01,4.2,8.8,34,No,6.66,Yes,9,<40K,9.32,47,6.39,1
+1080,32,Male,USA,Customer Support,Marketing,13,46,No,6.68,9.02,5.05,3.9,5.9,8.0,94,Yes,7.06,No,8,60K-80K,5.52,40,4.89,0
+1081,38,Female,Canada,IT Admin,Marketing,3,35,No,1.71,1.99,8.3,4.87,6.4,9.8,87,Yes,5.38,No,7,80K-100K,2.98,27,7.83,0
+1082,29,Male,USA,Project Manager,HR,16,42,No,5.38,1.36,5.8,5.32,7.3,8.9,106,Yes,2.58,Yes,5,80K-100K,4.52,13,6.26,0
+1083,56,Male,Australia,Marketing Manager,HR,16,52,Yes,2.89,6.42,4.03,9.34,5.5,2.0,3,No,1.91,No,0,100K+,6.53,44,6.99,0
+1084,56,Male,India,Project Manager,IT,11,43,Hybrid,2.79,2.11,3.99,1.48,8.7,0.6,40,No,3.82,No,7,100K+,4.41,34,8.77,0
+1085,54,Non-binary,Brazil,Project Manager,Engineering,19,59,No,9.47,5.54,9.08,2.77,6.3,4.1,25,No,5.19,No,7,60K-80K,7.37,33,8.79,1
+1086,26,Male,Canada,Data Scientist,Support,17,55,Hybrid,7.85,9.57,5.08,7.35,5.2,6.2,43,No,6.78,No,8,100K+,8.16,46,2.83,1
+1087,49,Non-binary,Australia,Marketing Manager,Engineering,2,50,Yes,7.27,7.29,4.65,6.2,5.6,6.4,41,Yes,1.01,Yes,9,80K-100K,2.88,26,6.61,1
+1088,28,Male,Canada,Data Scientist,HR,10,59,Yes,3.15,6.56,1.36,3.26,7.8,2.7,9,No,7.4,No,5,80K-100K,4.64,20,7.45,0
+1089,30,Male,Australia,IT Admin,Engineering,17,39,Hybrid,2.07,6.17,4.28,3.6,7.2,8.6,104,Yes,7.41,Yes,2,100K+,9.62,8,2.31,0
+1090,29,Female,USA,Marketing Manager,Sales,3,53,No,8.84,2.62,8.65,4.31,7.7,3.3,105,No,5.0,No,5,<40K,3.25,16,8.58,1
+1091,33,Non-binary,UK,Sales Associate,Sales,16,40,Yes,1.05,4.89,7.85,5.05,5.5,9.2,72,No,4.09,No,7,100K+,4.12,5,2.62,0
+1092,55,Male,India,Data Scientist,Sales,17,42,No,4.49,4.08,2.99,8.36,5.6,4.7,0,No,8.58,Yes,6,<40K,1.32,34,8.19,0
+1093,54,Non-binary,Germany,Data Scientist,HR,4,41,No,3.5,9.58,4.72,1.12,6.0,0.1,53,No,8.06,No,7,100K+,3.99,47,2.45,0
+1094,44,Non-binary,Germany,Data Scientist,Sales,13,38,Hybrid,6.13,3.18,2.77,9.08,4.9,1.6,15,No,9.85,No,2,80K-100K,4.34,27,7.68,0
+1095,45,Prefer not to say,USA,Customer Support,Marketing,9,33,Yes,3.25,5.24,9.59,4.72,7.5,1.0,45,Yes,4.35,Yes,7,80K-100K,1.9,36,2.33,0
+1096,58,Female,India,HR Specialist,IT,14,36,Hybrid,3.8,9.44,6.38,3.07,5.6,0.4,12,No,9.16,Yes,4,100K+,1.01,4,4.41,0
+1097,56,Female,India,Data Scientist,Marketing,0,53,Yes,8.65,8.1,7.79,5.58,5.6,7.1,101,Yes,1.79,Yes,6,40K-60K,6.18,42,2.29,1
+1098,43,Female,USA,IT Admin,Sales,15,58,Hybrid,6.43,9.68,7.42,6.94,5.3,1.9,63,Yes,4.7,Yes,3,<40K,3.71,7,3.44,0
+1099,48,Prefer not to say,India,Software Engineer,Support,10,51,Yes,2.31,6.47,8.86,1.4,6.3,8.4,77,No,5.19,Yes,2,40K-60K,1.16,37,9.86,0
+1100,56,Prefer not to say,UK,Software Engineer,IT,19,31,Yes,7.54,4.0,9.54,7.44,7.9,2.6,103,No,4.97,Yes,5,80K-100K,8.74,36,1.97,1

@@ -1,0 +1,6 @@
+{
+  "name": "Mental Burnout Predictor",
+  "description": "Daily journal sentiment tracker and wearable biometric analyzer providing early burnout prediction, wellness trend dashboard, and professional AI therapeutic assistance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
